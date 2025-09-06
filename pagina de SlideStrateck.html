@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlideStrateck - Transformamos Ideas</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles & Animations -->
+    <style>
+        :root {
+            --primary-color: #3b82f6; /* Blue 500 */
+            --secondary-color: #8b5cf6; /* Violet 500 */
+            --dark-bg: #030712; /* Gray 950 */
+            --card-bg: rgba(17, 24, 39, 0.7); /* Gray 900 with alpha */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e5e7eb;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            border: 2px solid var(--dark-bg);
+        }
+
+        /* Hero Section Canvas for Particles */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Glassmorphism Effect for Header */
+        .glass-header {
+            background: rgba(3, 7, 18, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Nav link hover effect */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover {
+            color: white;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Reveal on Scroll Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Enhanced glowing button */
+        .glowing-btn {
+            position: relative;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .glowing-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+        }
+
+        /* Enhanced Service Cards */
+        .service-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .service-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 1rem;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .service-card:hover:before {
+            opacity: 1;
+        }
+
+        /* Process Section Line Connector */
+        .process-step-container {
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .process-step-container:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                top: 2.5rem; /* Vertically center with the circle */
+                left: 100%;
+                width: 100%;
+                height: 2px;
+                background-image: linear-gradient(to right, #4a5568 50%, transparent 50%);
+                background-size: 10px 2px;
+                background-repeat: repeat-x;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* Country selector style */
+        .custom-select {
+            background-color: #1f2937;
+            border-color: #374151;
+            max-width: 250px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                 <!-- Logo SVG -->
+                <svg class="w-10 h-10 text-blue-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M12 16V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12L16 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M6 14H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 14H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M15 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <h1 class="text-2xl font-bold text-white tracking-wide">SlideStrateck</h1>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#mision" class="nav-link text-gray-300">Misión</a>
+                <a href="#servicios" class="nav-link text-gray-300">Servicios</a>
+                <a href="#proceso" class="nav-link text-gray-300">Proceso</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="min-h-screen flex items-center justify-center relative overflow-hidden text-white pt-20">
+            <canvas id="particle-canvas"></canvas>
+            <div class="hero-content text-center container mx-auto px-6">
+                <h2 class="text-5xl md:text-7xl font-extrabold mb-4 reveal tracking-tighter">Transformamos Tus Ideas</h2>
+                <p class="text-xl md:text-2xl text-blue-200 mb-8 max-w-3xl mx-auto reveal" style="transition-delay: 200ms;">Convertimos conceptos en presentaciones impactantes y páginas web funcionales que cautivan a tu audiencia.</p>
+                <a href="#servicios" class="glowing-btn inline-block text-white font-bold py-4 px-10 rounded-lg text-lg reveal" style="transition-delay: 400ms;">Descubre Cómo</a>
+            </div>
+        </section>
+
+        <!-- Misión Section -->
+        <section id="mision" class="py-20 md:py-32 bg-gray-900/50">
+            <div class="container mx-auto px-6 text-center">
+                <div class="max-w-4xl mx-auto">
+                    <h3 class="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400 reveal">Nuestra Misión</h3>
+                    <p class="text-lg text-gray-300 leading-relaxed reveal">
+                        Nuestra misión es transformar las ideas de los clientes en presentaciones impactantes y páginas web atractivas y funcionales. Nos enfocamos en ofrecer soluciones personalizadas y de alta calidad, utilizando las tecnologías más adecuadas para cada proyecto y garantizar resultados excepcionales.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Servicios Section -->
+        <section id="servicios" class="py-20 md:py-24">
+            <div class="container mx-auto px-6">
+                <h3 class="text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400 reveal">Servicios Principales</h3>
+                
+                <!-- Country Selector -->
+                <div class="flex justify-center items-center gap-3 mb-12 reveal">
+                    <label for="country-selector" class="text-gray-300">Ver precios en:</label>
+                    <select id="country-selector" class="custom-select text-white rounded-md p-2 border">
+                        <optgroup label="América">
+                            <option value="AR">Argentina (ARS)</option>
+                            <option value="BO">Bolivia (BOB)</option>
+                            <option value="BR">Brasil (BRL)</option>
+                            <option value="CA">Canadá (CAD)</option>
+                            <option value="CL">Chile (CLP)</option>
+                            <option value="CO">Colombia (COP)</option>
+                            <option value="CR">Costa Rica (CRC)</option>
+                            <option value="EC">Ecuador (USD)</option>
+                            <option value="SV">El Salvador (USD)</option>
+                            <option value="US">Estados Unidos (USD)</option>
+                            <option value="GT">Guatemala (GTQ)</option>
+                            <option value="MX">México (MXN)</option>
+                            <option value="PA">Panamá (PAB)</option>
+                            <option value="PY">Paraguay (PYG)</option>
+                            <option value="PE">Perú (PEN)</option>
+                            <option value="UY">Uruguay (UYU)</option>
+                        </optgroup>
+                        <optgroup label="Europa">
+                            <option value="DE">Alemania (EUR)</option>
+                            <option value="ES">España (EUR)</option>
+                            <option value="FR">Francia (EUR)</option>
+                            <option value="IT">Italia (EUR)</option>
+                            <option value="NO">Noruega (NOK)</option>
+                            <option value="PL">Polonia (PLN)</option>
+                            <option value="GB">Reino Unido (GBP)</option>
+                            <option value="SE">Suecia (SEK)</option>
+                            <option value="CH">Suiza (CHF)</option>
+                        </optgroup>
+                        <optgroup label="Asia">
+                            <option value="SA">Arabia Saudita (SAR)</option>
+                            <option value="CN">China (CNY)</option>
+                            <option value="KR">Corea del Sur (KRW)</option>
+                            <option value="AE">Emiratos Árabes (AED)</option>
+                            <option value="IN">India (INR)</option>
+                            <option value="ID">Indonesia (IDR)</option>
+                            <option value="JP">Japón (JPY)</option>
+                            <option value="RU">Rusia (RUB)</option>
+                            <option value="SG">Singapur (SGD)</option>
+                            <option value="TR">Turquía (TRY)</option>
+                        </optgroup>
+                        <optgroup label="África y Oceanía">
+                            <option value="AU">Australia (AUD)</option>
+                            <option value="EG">Egipto (EGP)</option>
+                            <option value="NZ">Nueva Zelanda (NZD)</option>
+                            <option value="ZA">Sudáfrica (ZAR)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Web Design -->
+                <div class="mb-20 reveal">
+                    <div class="service-card p-8 flex flex-col md:flex-row items-center gap-8">
+                        <div class="flex-1">
+                            <h4 class="text-3xl font-bold mb-4 text-white">Diseño y Desarrollo Web</h4>
+                            <p class="text-gray-300 mb-4">
+                                Sitios web modernos y de alto rendimiento con enfoque en UX/UI para una experiencia intuitiva y estética.
+                            </p>
+                            <p class="text-sm text-gray-400 mb-4"><strong class="text-gray-200">Tecnologías:</strong> HTML, CSS, JavaScript.</p>
+                             <div class="bg-blue-900/50 text-blue-200 rounded-lg p-3 text-center">
+                                <span class="font-bold text-xl">Precio Alto</span>
+                                <p class="text-sm">Codificación a medida para máxima flexibilidad y optimización.</p>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <svg class="w-32 h-32 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.4 16.5v-11c0-1.1-.9-2-2-2h-11c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.9 12.4l3.1 3.1 5.6-5.6"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide Design -->
+                <div class="text-center mb-16 reveal">
+                    <h4 class="text-3xl font-bold text-white">Diseño de Diapositivas y Presentaciones</h4>
+                    <p class="text-gray-400 max-w-2xl mx-auto mt-2">Soluciones adaptadas a diferentes necesidades y presupuestos.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- HTML Slides -->
+                    <div class="reveal service-card p-8 flex flex-col">
+                        <div class="flex-1">
+                            <h5 class="text-2xl font-bold mb-3 text-blue-400">Diapositivas en HTML</h5>
+                            <p class="text-gray-400 mb-4 text-sm">Presentaciones interactivas y dinámicas para una experiencia única.</p>
+                        </div>
+                        <div>
+                            <p class="text-lg font-semibold text-white mb-2">
+                                Desde <span class="price" data-price-usd="50"></span> <span class="text-sm font-normal text-gray-400">/ 10 diap.</span>
+                            </p>
+                            <p class="text-xs text-green-400">+ Tutorial gratuito de uso</p>
+                        </div>
+                    </div>
+                    <!-- Canva Slides -->
+                    <div class="reveal service-card p-8 flex flex-col" style="transition-delay: 200ms;">
+                         <div class="flex-1">
+                            <h5 class="text-2xl font-bold mb-3 text-violet-400">Diapositivas en Canva</h5>
+                            <p class="text-gray-400 mb-4 text-sm">Diseños rápidos, modernos y visualmente atractivos con producción ágil.</p>
+                        </div>
+                        <div>
+                           <p class="text-lg font-semibold text-white mb-2">
+                               <span class="price" data-price-usd="25"></span> <span class="text-sm font-normal text-gray-400">/ 10 diap. básicas</span>
+                           </p>
+                           <p class="text-xs text-blue-400">
+                               + <span class="price" data-price-usd="8"></span> por animaciones
+                           </p>
+                        </div>
+                    </div>
+                    <!-- PowerPoint Slides -->
+                    <div class="reveal service-card p-8 flex flex-col" style="transition-delay: 400ms;">
+                         <div class="flex-1">
+                            <h5 class="text-2xl font-bold mb-3 text-gray-400">Diapositivas en PowerPoint</h5>
+                            <p class="text-gray-400 mb-4 text-sm">Máxima compatibilidad para entornos corporativos y educativos.</p>
+                        </div>
+                        <div>
+                           <p class="text-lg font-semibold text-white mb-2">
+                               <span class="price-range" data-price-usd-min="7" data-price-usd-max="17"></span> 
+                               <span class="text-sm font-normal text-gray-400">/ presentación</span>
+                           </p>
+                           <p class="text-xs text-gray-500">Precio según complejidad</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Process Section -->
+        <section id="proceso" class="py-20 md:py-32 bg-gray-900/50">
+            <div class="container mx-auto px-6">
+                <h3 class="text-4xl font-bold text-center mb-16 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400 reveal">Nuestro Proceso Simplificado</h3>
+                <div class="max-w-5xl mx-auto grid md:grid-cols-4 gap-8 md:gap-4 text-center">
+                    <!-- Step 1 -->
+                    <div class="reveal process-step-container flex flex-col items-center">
+                        <div class="w-20 h-20 rounded-full bg-blue-900 border-2 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-300 mb-4">1</div>
+                        <h5 class="font-bold text-lg mb-2">Consulta Inicial</h5>
+                        <p class="text-gray-400 text-sm">Nos contactas y nos cuentas tu idea o necesidad.</p>
+                    </div>
+                    <!-- Step 2 -->
+                     <div class="reveal process-step-container flex flex-col items-center" style="transition-delay: 200ms;">
+                        <div class="w-20 h-20 rounded-full bg-blue-900 border-2 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-300 mb-4">2</div>
+                        <h5 class="font-bold text-lg mb-2">Análisis y Cotización</h5>
+                        <p class="text-gray-400 text-sm">Analizamos los detalles y te enviamos una cotización precisa.</p>
+                    </div>
+                    <!-- Step 3 -->
+                     <div class="reveal process-step-container flex flex-col items-center" style="transition-delay: 400ms;">
+                        <div class="w-20 h-20 rounded-full bg-blue-900 border-2 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-300 mb-4">3</div>
+                        <h5 class="font-bold text-lg mb-2">Desarrollo</h5>
+                        <p class="text-gray-400 text-sm">Manos a la obra. Creamos tu proyecto con maestría.</p>
+                    </div>
+                    <!-- Step 4 -->
+                     <div class="reveal process-step-container flex flex-col items-center" style="transition-delay: 600ms;">
+                        <div class="w-20 h-20 rounded-full bg-blue-900 border-2 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-300 mb-4">4</div>
+                        <h5 class="font-bold text-lg mb-2">Entrega Final</h5>
+                        <p class="text-gray-400 text-sm">Entregamos el proyecto finalizado, listo para impresionar.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black py-8 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>&copy; 2025 SlideStrateck. Todos los derechos reservados.</p>
+            <p class="text-sm mt-2">Diseño web con pasión y precisión.</p>
+        </div>
+    </footer>
+
+    <!-- Script for animations and pricing -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Reveal on scroll
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            revealElements.forEach(el => observer.observe(el));
+
+            // Particle animation
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            const particleCount = Math.floor(canvas.width / 25);
+
+            class Particle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = Math.random() * 1.5 + 0.5;
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = Math.random() * 1 - 0.5;
+                    this.color = `rgba(59, 130, 246, ${Math.random()})`;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.size > 0.1) this.size -= 0.01;
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
+                }
+            }
+
+            function handleParticles() {
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                    if (particles[i].size <= 0.1) {
+                        particles.splice(i, 1);
+                        i--;
+                        particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
+                    }
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                handleParticles();
+                requestAnimationFrame(animateParticles);
+            }
+            
+            initParticles();
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initParticles();
+            });
+
+            // Price conversion logic
+            const countrySelector = document.getElementById('country-selector');
+            const priceElements = document.querySelectorAll('.price');
+            const priceRangeElements = document.querySelectorAll('.price-range');
+
+            const exchangeRates = {
+                'AR': { rate: 890, locale: 'es-AR', currency: 'ARS' }, 'AU': { rate: 1.5, locale: 'en-AU', currency: 'AUD' }, 'BO': { rate: 6.9, locale: 'es-BO', currency: 'BOB' }, 'BR': { rate: 5.1, locale: 'pt-BR', currency: 'BRL' }, 'CA': { rate: 1.35, locale: 'en-CA', currency: 'CAD' }, 'CH': { rate: 0.9, locale: 'de-CH', currency: 'CHF' }, 'CL': { rate: 930, locale: 'es-CL', currency: 'CLP' }, 'CN': { rate: 7.2, locale: 'zh-CN', currency: 'CNY' }, 'CO': { rate: 3950, locale: 'es-CO', currency: 'COP' }, 'CR': { rate: 520, locale: 'es-CR', currency: 'CRC' }, 'DE': { rate: 0.92, locale: 'de-DE', currency: 'EUR' }, 'EC': { rate: 1, locale: 'es-EC', currency: 'USD' }, 'EG': { rate: 47.5, locale: 'ar-EG', currency: 'EGP' }, 'ES': { rate: 0.92, locale: 'es-ES', currency: 'EUR' }, 'FR': { rate: 0.92, locale: 'fr-FR', currency: 'EUR' }, 'GB': { rate: 0.79, locale: 'en-GB', currency: 'GBP' }, 'GT': { rate: 7.8, locale: 'es-GT', currency: 'GTQ' }, 'IN': { rate: 83.5, locale: 'en-IN', currency: 'INR' }, 'ID': { rate: 16000, locale: 'id-ID', currency: 'IDR' }, 'IT': { rate: 0.92, locale: 'it-IT', currency: 'EUR' }, 'JP': { rate: 155, locale: 'ja-JP', currency: 'JPY' }, 'KR': { rate: 1350, locale: 'ko-KR', currency: 'KRW' }, 'MX': { rate: 17.0, locale: 'es-MX', currency: 'MXN' }, 'NO': { rate: 10.5, locale: 'nb-NO', currency: 'NOK' }, 'NZ': { rate: 1.65, locale: 'en-NZ', currency: 'NZD' }, 'PA': { rate: 1, locale: 'es-PA', currency: 'PAB' }, 'PE': { rate: 3.75, locale: 'es-PE', currency: 'PEN' }, 'PL': { rate: 4.0, locale: 'pl-PL', currency: 'PLN' }, 'PY': { rate: 7300, locale: 'es-PY', currency: 'PYG' }, 'RU': { rate: 90, locale: 'ru-RU', currency: 'RUB' }, 'SA': { rate: 3.75, locale: 'ar-SA', currency: 'SAR' }, 'SE': { rate: 10.5, locale: 'sv-SE', currency: 'SEK' }, 'SG': { rate: 1.35, locale: 'en-SG', currency: 'SGD' }, 'TR': { rate: 32, locale: 'tr-TR', currency: 'TRY' }, 'UY': { rate: 39, locale: 'es-UY', currency: 'UYU' }, 'US': { rate: 1, locale: 'en-US', currency: 'USD' }, 'SV': { rate: 1, locale: 'es-SV', currency: 'USD' }, 'AE': { rate: 3.67, locale: 'ar-AE', currency: 'AED' }, 'ZA': { rate: 18.5, locale: 'en-ZA', currency: 'ZAR' }
+            };
+
+            function formatPrice(value, locale, currency) {
+                const noDecimalCurrencies = ['JPY', 'CLP', 'COP', 'ARS', 'KRW', 'PYG', 'IDR', 'RUB'];
+                const fractionDigits = noDecimalCurrencies.includes(currency) ? 0 : 2;
+                return new Intl.NumberFormat(locale, { style: 'currency', currency: currency, minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits }).format(value);
+            }
+
+            function updatePrices() {
+                const selectedCountry = countrySelector.value;
+                if (!exchangeRates[selectedCountry]) return;
+                const { rate, locale, currency } = exchangeRates[selectedCountry];
+
+                priceElements.forEach(el => {
+                    const basePriceUSD = parseFloat(el.getAttribute('data-price-usd'));
+                    el.textContent = formatPrice(basePriceUSD * rate, locale, currency);
+                });
+
+                priceRangeElements.forEach(el => {
+                    const minPriceUSD = parseFloat(el.getAttribute('data-price-usd-min'));
+                    const maxPriceUSD = parseFloat(el.getAttribute('data-price-usd-max'));
+                    el.textContent = `${formatPrice(minPriceUSD * rate, locale, currency)} - ${formatPrice(maxPriceUSD * rate, locale, currency)}`;
+                });
+            }
+
+            countrySelector.addEventListener('change', updatePrices);
+            countrySelector.value = 'PA';
+            updatePrices();
+        });
+    </script>
+</body>
+</html>
+
